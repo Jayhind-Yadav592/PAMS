@@ -1,4 +1,4 @@
-# AUTOMATED PASSPORT TRACKING AND PROCESSING TIME PREDICTION SYSTEM
+# PASSPORT APPLICATION MANAGEMENT SYSTEM
 
 ## 🎯 Project Overview
 This is a Django-based web application that automates passport application tracking and predicts processing time using Machine Learning.
@@ -58,9 +58,6 @@ cd passport_tracking_system
 python -m venv venv
 venv\Scripts\activate
 
-# Mac/Linux
-python3 -m venv venv
-source venv/bin/activate
 ```
 
 ### 4. Install Dependencies
