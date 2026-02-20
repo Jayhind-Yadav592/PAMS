@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% block title %}Track Application - {{ application.application_number }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'citizen_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Track Application</li>
+        </ol>
+    </nav>
+
+    <!-- Application Header Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 p-1 rounded me-3">
+                            {% if application.user.profile_picture %}
+    <img src="{{ application.user.profile_picture.url }}" 
+         alt="{{ application.full_name }}" 
+         class="rounded-circle"
+         style="width: 64px; height: 64px; object-fit: cover;">
+{% else %}
+    <!-- Default avatar agar photo nahi hai -->
+    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+         style="width: 64px; height: 64px; font-size: 24px;">
+        {{ application.full_name|first|upper }}
+    </div>
+{% endif %}
+                        </div>
+                        <div>
+                            <h4 class="mb-1 fw-bold">{{ application.full_name }}</h4>
+                            <p class="text-muted mb-0">Application Number: <strong class="text-primary">{{ application.application_number }}</strong></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <div class="text-muted small me-2">Type:</div>
+                                <span class="badge bg-light text-dark border">{{ application.get_application_type_display }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <div class="text-muted small me-2">Submitted:</div>
+                                <span class="fw-semibold">{{ application.submission_date|date:"d M, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 mt-3 mt-lg-0">
+                    <div class="text-center p-3 bg-light rounded">
+                        <div class="text-muted small mb-1">Current Status</div>
+                        {% if application.current_status == 'submitted' %}
+                            <span class="badge bg-info fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'document_verification' %}
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                <i class="bi bi-file-earmark-check"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'police_verification' %}
+                            <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                                <i class="bi bi-shield-check"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'approved' %}
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle-fill"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'printing' %}
+                            <span class="badge bg-primary fs-6 px-3 py-2">
+                                <i class="bi bi-printer"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'dispatched' %}
+                            <span class="badge bg-info fs-6 px-3 py-2">
+                                <i class="bi bi-truck"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'delivered' %}
+                            <span class="badge bg-success fs-6 px-3 py-2">
+                                <i class="bi bi-check-circle-fill"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% elif application.current_status == 'rejected' %}
+                            <span class="badge bg-danger fs-6 px-3 py-2">
+                                <i class="bi bi-x-circle"></i> {{ application.get_current_status_display }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6 px-3 py-2">{{ application.get_current_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row text-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="p-3 bg-primary bg-opacity-10 rounded">
+                        <div class="text-primary mb-2">
+                            <svg width="32" height="32" fill="currentColor">
+                                <use xlink:href="#clock-icon"/>
+                            </svg>
+                        </div>
+                        <h3 class="mb-1 fw-bold text-primary">{{ application.predicted_completion_days }} Days</h3>
+                        <p class="text-muted small mb-0">Predicted Processing Time</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-success bg-opacity-10 rounded">
+                        <div class="text-success mb-2">
+                            <svg width="32" height="32" fill="currentColor">
+                                <use xlink:href="#calendar-icon"/>
+                            </svg>
+                        </div>
+                        <h3 class="mb-1 fw-bold text-success">{{ application.expected_completion_date|date:"d M, Y" }}</h3>
+                        <p class="text-muted small mb-0">Expected Completion Date</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Timeline -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">Application Progress Timeline</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="timeline-container">
+                {% for stage in stages %}
+                <div class="timeline-item {% if stage.status == 'completed' %}completed{% elif stage.status == 'in_progress' %}active{% elif stage.status == 'rejected' %}rejected{% endif %}">
+                    <div class="timeline-marker">
+                        {% if stage.status == 'completed' %}
+                            <i class="bi bi-check-lg"></i>
+                        {% elif stage.status == 'in_progress' %}
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        {% elif stage.status == 'rejected' %}
+                            <i class="bi bi-x-lg"></i>
+                        {% else %}
+                            <i class="bi bi-circle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-content">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h6 class="mb-1 fw-semibold">{{ stage.stage_name }}</h6>
+                                <span class="badge 
+                                    {% if stage.status == 'completed' %}bg-success
+                                    {% elif stage.status == 'in_progress' %}bg-warning text-dark
+                                    {% elif stage.status == 'rejected' %}bg-danger
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ stage.get_status_display }}
+                                </span>
+                            </div>
+                            {% if stage.start_time %}
+                                <small class="text-muted">{{ stage.start_time|date:"d M, Y" }}</small>
+                            {% endif %}
+                        </div>
+                        
+                        {% if stage.assigned_officer %}
+                            <p class="text-muted small mb-1">
+                                <i class="bi bi-person"></i> Assigned to: {{ stage.assigned_officer.get_full_name }}
+                            </p>
+                        {% endif %}
+                        
+                        {% if stage.remarks %}
+                            <div class="alert alert-light border-start border-4 border-info py-2 px-3 mb-0 mt-2">
+                                <small><i class="bi bi-info-circle"></i> <strong>Note:</strong> {{ stage.remarks }}</small>
+                            </div>
+                        {% endif %}
+                        
+                        {% if stage.end_time %}
+                            <small class="text-success d-block mt-2">
+                                <i class="bi bi-check-circle"></i> Completed on {{ stage.end_time|date:"d M, Y H:i" }}
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-4">
+        <a href="{% url 'citizen_dashboard' %}" class="btn btn-outline-primary me-2">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-secondary">
+            <i class="bi bi-printer"></i> Print Status
+        </button>
+    </div>
+</div>
+
+<!-- SVG Icons -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="passport-icon" viewBox="0 0 16 16">
+        <path d="M8 5a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM6 7a1 1 0 1 1 2 0 1 1 0 0 1-2 0z"/>
+        <path d="M3.5 0a.5.5 0 0 0-.5.5V1h-.5A1.5 1.5 0 0 0 1 2.5v12A1.5 1.5 0 0 0 2.5 16h11a1.5 1.5 0 0 0 1.5-1.5v-12A1.5 1.5 0 0 0 13.5 1H13V.5a.5.5 0 0 0-1 0V1H4V.5a.5.5 0 0 0-.5-.5zM2.5 2h11a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-12a.5.5 0 0 1 .5-.5z"/>
+        <path d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+    </symbol>
+    <symbol id="clock-icon" viewBox="0 0 16 16">
+        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+    </symbol>
+    <symbol id="calendar-icon" viewBox="0 0 16 16">
+        <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+    </symbol>
+</svg>
+
+<style>
+/* Timeline Styles */
+.timeline-container {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 60px;
+    margin-bottom: 40px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #6c757d;
+    z-index: 2;
+}
+
+.timeline-item.completed .timeline-marker {
+    background: #28a745;
+    box-shadow: 0 0 0 2px #28a745;
+    color: white;
+}
+
+.timeline-item.active .timeline-marker {
+    background: #ffc107;
+    box-shadow: 0 0 0 2px #ffc107;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.timeline-item.rejected .timeline-marker {
+    background: #dc3545;
+    box-shadow: 0 0 0 2px #dc3545;
+    color: white;
+}
+
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #e9ecef 0%, #e9ecef 100%);
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 3px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.timeline-item.completed .timeline-content {
+    border-left-color: #28a745;
+}
+
+.timeline-item.active .timeline-content {
+    border-left-color: #ffc107;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.timeline-item.rejected .timeline-content {
+    border-left-color: #dc3545;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 2px #ffc107, 0 0 0 4px rgba(255, 193, 7, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 2px #ffc107, 0 0 0 8px rgba(255, 193, 7, 0.1);
+    }
+}
+
+/* Card Hover Effects */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1) !important;
+}
+
+/* Print Styles */
+@media print {
+    .breadcrumb, .btn, nav, footer {
+        display: none !important;
+    }
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+    }
+}
+</style>
+{% endblock %}

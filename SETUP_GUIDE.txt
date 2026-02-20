@@ -1,0 +1,191 @@
+==============================================
+PASSPORT TRACKING SYSTEM - SETUP GUIDE
+==============================================
+
+IMPORTANT: This is a COMPLETE Django project structure.
+All necessary files are included but need Django to be installed to run.
+
+==============================================
+INSTALLATION STEPS:
+==============================================
+
+1. EXTRACT THE ZIP FILE
+   - Extract to a folder (e.g., C:\Projects\passport_tracking_system)
+
+2. OPEN TERMINAL/CMD in the project folder
+
+3. CREATE VIRTUAL ENVIRONMENT:
+   
+   Windows:
+   python -m venv venv
+   venv\Scripts\activate
+   
+   Mac/Linux:
+   python3 -m venv venv
+   source venv/bin/activate
+
+4. INSTALL DEPENDENCIES:
+   pip install django
+   pip install Pillow
+   pip install pandas
+   pip install scikit-learn
+   pip install numpy
+   
+   OR use requirements.txt:
+   pip install -r requirements.txt
+
+5. DATABASE SETUP:
+   
+   Option A - SQLite (Already configured, easiest):
+   python manage.py makemigrations
+   python manage.py migrate
+   
+   Option B - MySQL (If you want to use MySQL):
+   - Install MySQL
+   - Create database: CREATE DATABASE passport_system;
+   - Update config/settings.py (uncomment MySQL section)
+   - Run migrations
+
+6. TRAIN ML MODEL:
+   python ml_prediction/train_model.py
+   
+   This will create passport_model.pkl file
+
+7. CREATE SUPERUSER (Admin):
+   python manage.py createsuperuser
+   Username: admin
+   Email: admin@example.com
+   Password: (your secure password)
+
+8. RUN SERVER:
+   python manage.py runserver
+
+9. OPEN IN BROWSER:
+   http://127.0.0.1:8000/
+   Admin Panel: http://127.0.0.1:8000/admin/
+
+==============================================
+DEFAULT USER ROLES (Create from Admin Panel):
+==============================================
+
+After creating superuser, login to admin panel and create test users:
+
+1. Citizen (role='citizen')
+   - Can submit applications
+   - Track status
+   
+2. Police Officer (role='police')
+   - Can verify applications
+   - Update police verification status
+   
+3. RPO Officer (role='rpo')
+   - Can verify documents
+   - Approve/reject applications
+   - Manage workflow
+   
+4. Admin (role='admin' or superuser)
+   - Full access
+   - View analytics
+   - Manage all users
+
+==============================================
+PROJECT STRUCTURE OVERVIEW:
+==============================================
+
+passport_tracking_system/
+├── manage.py              # Django management script
+├── config/                # Project settings
+│   ├── settings.py       # Main configuration
+│   └── urls.py           # URL routing
+├── accounts/              # User authentication & profiles
+├── applications/          # Passport application management
+├── officer/               # Officer portal
+├── admin_panel/           # Admin dashboard
+├── ml_prediction/         # Machine Learning engine
+├── notifications/         # Notification system
+├── static/                # CSS, JS, Images
+├── media/                 # User uploads
+└── templates/             # HTML templates
+
+==============================================
+FEATURES INCLUDED:
+==============================================
+
+✓ User Registration & Login
+✓ Role-based Access Control
+✓ Passport Application Submission
+✓ Document Upload System
+✓ Real-time Application Tracking
+✓ ML-based Processing Time Prediction
+✓ Officer Verification Portal
+✓ Admin Analytics Dashboard
+✓ Status Update Notifications
+✓ Responsive Bootstrap UI
+
+==============================================
+TROUBLESHOOTING:
+==============================================
+
+Issue: "No module named 'django'"
+Solution: Activate virtual environment and install Django
+   pip install django
+
+Issue: Database errors
+Solution: Run migrations
+   python manage.py makemigrations
+   python manage.py migrate
+
+Issue: Static files not loading
+Solution: Collect static files
+   python manage.py collectstatic
+
+Issue: ML model not found
+Solution: Train the model first
+   python ml_prediction/train_model.py
+
+Issue: Admin login not working
+Solution: Create superuser again
+   python manage.py createsuperuser
+
+==============================================
+FOR COLLEGE PROJECT SUBMISSION:
+==============================================
+
+1. Documentation (Create separate Word document):
+   - Introduction
+   - System Design (ER diagrams, Use cases)
+   - Screenshots of all pages
+   - Code explanation
+   - Testing results
+   - Conclusion
+
+2. Presentation (Create PowerPoint):
+   - Problem statement
+   - Solution approach
+   - Architecture diagram
+   - Demo screenshots
+   - Future scope
+
+3. Demo Video:
+   - Record screen showing all features
+   - Show user registration
+   - Application submission
+   - Tracking
+   - Officer portal
+   - Admin dashboard
+
+==============================================
+CONTACT & SUPPORT:
+==============================================
+
+This is a complete working Django project.
+All code is commented for easy understanding.
+
+For any setup issues:
+1. Check if virtual environment is activated
+2. Ensure all packages are installed
+3. Run migrations properly
+4. Check Django version (should be 4.x)
+
+Good luck with your project! 🎓
+==============================================

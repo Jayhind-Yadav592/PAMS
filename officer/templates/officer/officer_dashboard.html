@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Officer Dashboard{% endblock %}
+
+{% block content %}
+<h2>Officer Portal</h2>
+<p>Welcome, {{ user.get_full_name }}!</p>
+
+<div class="card">
+    <div class="card-header bg-warning">
+        <h5>Pending Verifications ({{ pending_count }})</h5>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Application No.</th>
+                    <th>Stage</th>
+                    <th>Applicant</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stage in pending_stages %}
+                <tr>
+                    <td>{{ stage.application.application_number }}</td>
+                    <td>{{ stage.stage_name }}</td>
+                    <td>{{ stage.application.full_name }}</td>
+                    <td>
+                        <a href="{% url 'verify_application' stage.id %}" class="btn btn-sm btn-primary">Verify</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No pending verifications</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

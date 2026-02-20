@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Verify Application{% endblock %}
+
+{% block content %}
+<h3>Verify: {{ stage.stage_name }}</h3>
+<div class="card">
+    <div class="card-body">
+        <p><strong>Application:</strong> {{ stage.application.application_number }}</p>
+        <p><strong>Applicant:</strong> {{ stage.application.full_name }}</p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Remarks</label>
+                <textarea name="remarks" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" name="action" value="approve" class="btn btn-success">Approve</button>
+            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject</button>
+            <a href="{% url 'officer_dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

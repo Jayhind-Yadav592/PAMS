@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% block title %}ML Prediction Analytics{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-graph-up text-primary"></i> ML Prediction Analytics
+            </h2>
+            <p class="text-muted mb-0">Monitor machine learning model performance</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-primary mb-2">
+                        <i class="bi bi-graph-up" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">{{ total_predictions }}</h3>
+                    <p class="text-muted small mb-0">Total Predictions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-success mb-2">
+                        <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">{{ model_accuracy }}%</h3>
+                    <p class="text-muted small mb-0">Model Accuracy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-info mb-2">
+                        <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">{{ avg_predicted_days }}</h3>
+                    <p class="text-muted small mb-0">Avg Predicted Days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="text-warning mb-2">
+                        <i class="bi bi-check2-square" style="font-size: 2rem;"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">{{ completed_apps }}</h3>
+                    <p class="text-muted small mb-0">Completed Apps</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Chart -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-bar-chart-line"></i> Prediction vs Actual Time
+            </h5>
+        </div>
+        <div class="card-body">
+            <canvas id="accuracyChart" height="80"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Predictions Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-bold">
+                <i class="bi bi-table"></i> Recent Predictions
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="px-4">Application No.</th>
+                            <th>Type</th>
+                            <th>City</th>
+                            <th>Predicted</th>
+                            <th>Actual</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recent_predictions %}
+                        <tr>
+                            <td class="px-4">
+                                <a href="{% url 'track_application' item.application.application_number %}" 
+                                   class="text-decoration-none fw-semibold">
+                                    {{ item.application.application_number }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ item.application.get_application_type_display }}
+                                </span>
+                            </td>
+                            <td>{{ item.application.city }}</td>
+                            <td>
+                                <span class="badge bg-info">{{ item.predicted_days }} days</span>
+                            </td>
+                            <td>
+                                {% if item.actual_days %}
+                                    <span class="badge bg-light text-dark border">
+                                        {{ item.actual_days }} days
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted small">Processing...</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.actual_days %}
+                                    {% if item.is_accurate %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle-fill"></i> Accurate
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            Off by 
+                                            {% if item.difference > 0 %}
+                                                +{{ item.difference }}
+                                            {% else %}
+                                                {{ item.difference }}
+                                            {% endif %}
+                                            days
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ item.prediction.prediction_date|date:"d M, Y" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox" style="font-size: 3rem; opacity: 0.3;"></i>
+                                    <p class="mb-0 mt-3">No predictions available yet</p>
+                                    <small>Predictions will appear here after applications are submitted</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Info -->
+    <div class="alert alert-info border-0 mt-4">
+        <div class="d-flex">
+            <i class="bi bi-info-circle fs-4 me-3"></i>
+            <div>
+                <h6 class="fw-bold mb-1">About the ML Model</h6>
+                <p class="mb-0 small">
+                    The system uses a Random Forest Regressor trained on historical passport application data. 
+                    Predictions are based on application type, location, current workload, and seasonal patterns.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Prediction Accuracy Chart
+const ctx = document.getElementById('accuracyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            label: 'Predicted Days',
+            data: {{ predicted_data|safe }},
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+        }, {
+            label: 'Actual Days',
+            data: {{ actual_data|safe }},
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            borderWidth: 2,
+            tension: 0.4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top',
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Processing Days'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Application Number'
+                }
+            }
+        }
+    }
+});
+</script>
+
+<style>
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+</style>
+{% endblock %}

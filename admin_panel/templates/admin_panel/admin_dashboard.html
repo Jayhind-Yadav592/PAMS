@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h2>Admin Analytics Dashboard</h2>
+
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h3>{{ total_apps }}</h3>
+                <p>Total Applications</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h3>{{ pending_apps }}</h3>
+                <p>Pending</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h3>{{ completed_apps }}</h3>
+                <p>Completed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h3>{{ rejected_apps }}</h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-5">Recent Applications</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Application No.</th>
+            <th>Applicant</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for app in recent_apps %}
+        <tr>
+            <td>{{ app.application_number }}</td>
+            <td>{{ app.full_name }}</td>
+            <td>{{ app.get_application_type_display }}</td>
+            <td>{{ app.get_current_status_display }}</td>
+            <td>{{ app.submission_date|date:"d M, Y" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

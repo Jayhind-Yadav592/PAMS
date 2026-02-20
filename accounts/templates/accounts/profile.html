@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% block title %}My Profile - {{ user.username }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold">My Profile</h2>
+            <p class="text-muted mb-0">Manage your personal information and settings</p>
+        </div>
+        <a href="{% url 'citizen_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <!-- Profile Photo -->
+                    <div class="position-relative d-inline-block mb-3">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" 
+                                 alt="{{ user.get_full_name }}" 
+                                 class="rounded-circle border border-4 border-light shadow"
+                                 style="width: 150px; height: 150px; object-fit: cover;"
+                                 id="profilePreview">
+                        {% else %}
+                            <div class="rounded-circle border border-4 border-light shadow bg-primary bg-gradient text-white d-flex align-items-center justify-content-center mx-auto" 
+                                 style="width: 150px; height: 150px; font-size: 64px; font-weight: bold;"
+                                 id="profilePreview">
+                                {{ user.first_name|first|upper|default:user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2 border border-3 border-white" 
+                              style="width: 40px; height: 40px;">
+                            <i class="bi bi-check text-white"></i>
+                        </span>
+                    </div>
+
+                    <!-- User Info -->
+                    <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-muted mb-3">@{{ user.username }}</p>
+                    
+                    <div class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-3">
+                        <i class="bi bi-person-badge"></i> {{ user.get_role_display }}
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="row g-2 mt-3">
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="fw-bold text-primary">{{ total_applications }}</div>
+                                <small class="text-muted">Applications</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bg-light rounded p-2">
+                                <div class="fw-bold text-success">{{ completed_applications }}</div>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <!-- Account Info -->
+                    <div class="text-start">
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-envelope me-2"></i>{{ user.email }}
+                        </p>
+                        {% if user.phone %}
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-telephone me-2"></i>{{ user.phone }}
+                        </p>
+                        {% endif %}
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-calendar me-2"></i>Member since {{ user.date_joined|date:"M Y" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-shield-check text-success"></i> Security
+                    </h6>
+                    <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                        <i class="bi bi-key"></i> Change Password
+                    </a>
+                    <a href="#" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="bi bi-shield-x"></i> Two-Factor Auth
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Profile Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-pencil-square text-primary"></i> Edit Profile Information
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="profileForm">
+                        {% csrf_token %}
+                        
+                        <!-- Photo Upload Section -->
+                        <div class="mb-4 p-4 bg-light rounded">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-camera"></i> Profile Picture
+                            </label>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if user.profile_picture %}
+                                        <img src="{{ user.profile_picture.url }}" 
+                                             class="rounded-circle" 
+                                             style="width: 80px; height: 80px; object-fit: cover;"
+                                             id="photoThumb">
+                                    {% else %}
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                             style="width: 80px; height: 80px; font-size: 32px;"
+                                             id="photoThumb">
+                                            {{ user.first_name|first|upper|default:user.username|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow-1">
+                                    <input type="file" 
+                                           name="profile_picture" 
+                                           class="form-control" 
+                                           id="photoInput"
+                                           accept="image/jpeg,image/jpg,image/png">
+                                    <small class="text-muted d-block mt-1">
+                                        JPG, PNG. Max 2MB. Recommended: 500x500px
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <h6 class="fw-bold mb-3 text-primary">
+                            <i class="bi bi-person"></i> Personal Information
+                        </h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Date of Birth</label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="text-danger small mt-1">{{ form.date_of_birth.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email Address</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Phone Number</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <h6 class="fw-bold mb-3 text-primary">
+                            <i class="bi bi-geo-alt"></i> Address Information
+                        </h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Address</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small mt-1">{{ form.address.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">City</label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="text-danger small mt-1">{{ form.city.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">State</label>
+                                {{ form.state }}
+                                {% if form.state.errors %}
+                                    <div class="text-danger small mt-1">{{ form.state.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Pincode</label>
+                                {{ form.pincode }}
+                                {% if form.pincode.errors %}
+                                    <div class="text-danger small mt-1">{{ form.pincode.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Reset
+                            </button>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle"></i> Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Profile Photo Hover Effect */
+#profilePreview {
+    transition: transform 0.3s ease;
+}
+
+#profilePreview:hover {
+    transform: scale(1.05);
+}
+
+/* Form Styling */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.6rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+/* Card Hover */
+.card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+}
+
+/* Button Animations */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+</style>
+
+<script>
+// Photo Preview
+document.getElementById('photoInput')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Update both preview images
+            const profilePreview = document.getElementById('profilePreview');
+            const photoThumb = document.getElementById('photoThumb');
+            
+            if (profilePreview.tagName === 'IMG') {
+                profilePreview.src = e.target.result;
+            } else {
+                // Replace div with img
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = profilePreview.className;
+                img.style = profilePreview.style.cssText;
+                img.id = 'profilePreview';
+                profilePreview.replaceWith(img);
+            }
+            
+            if (photoThumb.tagName === 'IMG') {
+                photoThumb.src = e.target.result;
+            } else {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = photoThumb.className;
+                img.style = photoThumb.style.cssText;
+                img.id = 'photoThumb';
+                photoThumb.replaceWith(img);
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+// Form Validation
+document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        } else {
+            field.classList.remove('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        alert('Please fill all required fields');
+    }
+});
+
+// Phone Number Validation
+const phoneInput = document.querySelector('input[name="phone"]');
+if (phoneInput) {
+    phoneInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9+]/g, '');
+    });
+}
+
+// Pincode Validation
+const pincodeInput = document.querySelector('input[name="pincode"]');
+if (pincodeInput) {
+    pincodeInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+    });
+}
+
+// Auto-save draft (optional)
+let saveTimeout;
+document.querySelectorAll('input, textarea, select').forEach(field => {
+    field.addEventListener('input', function() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            // Save to localStorage
+            const formData = new FormData(document.getElementById('profileForm'));
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'csrfmiddlewaretoken' && key !== 'profile_picture') {
+                    data[key] = value;
+                }
+            }
+            localStorage.setItem('profileDraft', JSON.stringify(data));
+            console.log('Draft saved');
+        }, 1000);
+    });
+});
+
+// Load draft on page load
+window.addEventListener('DOMContentLoaded', function() {
+    const draft = localStorage.getItem('profileDraft');
+    if (draft) {
+        const data = JSON.parse(draft);
+        Object.keys(data).forEach(key => {
+            const field = document.querySelector(`[name="${key}"]`);
+            if (field && !field.value) {
+                field.value = data[key];
+            }
+        });
+    }
+});
+
+// Clear draft after successful submission
+document.getElementById('profileForm')?.addEventListener('submit', function() {
+    localStorage.removeItem('profileDraft');
+});
+</script>
+{% endblock %}

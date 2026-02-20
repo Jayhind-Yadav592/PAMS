@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+{% block title %}New Passport Application{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-4 ">
+        <h2 class="fw-bold mb-2">Apply for New Passport</h2>
+        <p class="text-muted">Fill in the details carefully. All fields are mandatory.</p>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="step-item active">
+                    <div class="step-circle">1</div>
+                    <small class="d-block mt-2">Application Type</small>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item">
+                    <div class="step-circle">2</div>
+                    <small class="d-block mt-2">Personal Details</small>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item">
+                    <div class="step-circle">3</div>
+                    <small class="d-block mt-2">Address</small>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-item">
+                    <div class="step-circle">4</div>
+                    <small class="d-block mt-2">Submit</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post" id="applicationForm">
+                        {% csrf_token %}
+
+                        <!-- Section 1: Application Type -->
+                        <div class="form-section active" id="section-1">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-primary">
+                                    <i class="bi bi-file-text"></i> Application Type
+                                </h5>
+                                <p class="text-muted small mb-0">Select the type of passport service you need</p>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Application Type <span class="text-danger">*</span></label>
+                                    {{ form.application_type }}
+                                    {% if form.application_type.errors %}
+                                        <div class="text-danger small mt-1">{{ form.application_type.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end mt-4">
+                                <button type="button" class="btn btn-primary px-4" onclick="nextSection(2)">
+                                    Next <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Personal Details -->
+                        <div class="form-section" id="section-2" style="display: none;">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-primary">
+                                    <i class="bi bi-person"></i> Personal Information
+                                </h5>
+                                <p class="text-muted small mb-0">Enter your personal details as per official documents</p>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                                    {{ form.full_name }}
+                                    {% if form.full_name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.full_name.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">As per birth certificate or Aadhaar</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                                    {{ form.date_of_birth }}
+                                    {% if form.date_of_birth.errors %}
+                                        <div class="text-danger small mt-1">{{ form.date_of_birth.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
+                                    {{ form.gender }}
+                                    {% if form.gender.errors %}
+                                        <div class="text-danger small mt-1">{{ form.gender.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">For notifications and updates</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                                    {{ form.phone }}
+                                    {% if form.phone.errors %}
+                                        <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">10 digit mobile number</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevSection(1)">
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+                                <button type="button" class="btn btn-primary px-4" onclick="nextSection(3)">
+                                    Next <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Address Details -->
+                        <div class="form-section" id="section-3" style="display: none;">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-primary">
+                                    <i class="bi bi-geo-alt"></i> Address Information
+                                </h5>
+                                <p class="text-muted small mb-0">Provide your current residential address</p>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Full Address <span class="text-danger">*</span></label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                        <div class="text-danger small mt-1">{{ form.address.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">House/Flat No., Street, Locality</small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">City <span class="text-danger">*</span></label>
+                                    {{ form.city }}
+                                    {% if form.city.errors %}
+                                        <div class="text-danger small mt-1">{{ form.city.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">State <span class="text-danger">*</span></label>
+                                    {{ form.state }}
+                                    {% if form.state.errors %}
+                                        <div class="text-danger small mt-1">{{ form.state.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Pincode <span class="text-danger">*</span></label>
+                                    {{ form.pincode }}
+                                    {% if form.pincode.errors %}
+                                        <div class="text-danger small mt-1">{{ form.pincode.errors }}</div>
+                                    {% endif %}
+                                    <small class="text-muted">6 digit PIN code</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevSection(2)">
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+                                <button type="button" class="btn btn-primary px-4" onclick="nextSection(4)">
+                                    Next <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Review & Submit -->
+                        <div class="form-section" id="section-4" style="display: none;">
+                            <div class="section-header mb-4">
+                                <h5 class="fw-bold text-success">
+                                    <i class="bi bi-check-circle"></i> Review & Submit
+                                </h5>
+                                <p class="text-muted small mb-0">Please review your information before submitting</p>
+                            </div>
+
+                            <div class="alert alert-warning border-start border-4 border-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Important:</strong> Please ensure all details are correct. You cannot edit after submission.
+                            </div>
+
+                            <div class="bg-light rounded p-4 mb-4">
+                                <h6 class="fw-bold mb-3">Summary</h6>
+                                <div class="row g-2 small">
+                                    <div class="col-6 text-muted">Application Type:</div>
+                                    <div class="col-6 fw-semibold" id="review-type">-</div>
+                                    
+                                    <div class="col-6 text-muted">Full Name:</div>
+                                    <div class="col-6 fw-semibold" id="review-name">-</div>
+                                    
+                                    <div class="col-6 text-muted">Date of Birth:</div>
+                                    <div class="col-6 fw-semibold" id="review-dob">-</div>
+                                    
+                                    <div class="col-6 text-muted">Email:</div>
+                                    <div class="col-6 fw-semibold" id="review-email">-</div>
+                                    
+                                    <div class="col-6 text-muted">Phone:</div>
+                                    <div class="col-6 fw-semibold" id="review-phone">-</div>
+                                    
+                                    <div class="col-6 text-muted">City:</div>
+                                    <div class="col-6 fw-semibold" id="review-city">-</div>
+                                </div>
+                            </div>
+
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">
+                                    I hereby declare that the information provided is true and correct to the best of my knowledge.
+                                </label>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" onclick="prevSection(3)">
+                                    <i class="bi bi-arrow-left"></i> Previous
+                                </button>
+                                <div>
+                                    <a href="{% url 'citizen_dashboard' %}" class="btn btn-outline-danger me-2">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-success px-4">
+                                        <i class="bi bi-check-circle"></i> Submit Application
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Card -->
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="text-info fs-4 me-3">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Need Help?</h6>
+                            <p class="text-muted small mb-0">
+                                For any assistance, please contact our helpline or visit the nearest Regional Passport Office.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Step Progress Styles */
+.step-item {
+    text-align: center;
+    flex: 1;
+}
+
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #6c757d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+.step-item.active .step-circle {
+    background: #0d6efd;
+    color: white;
+}
+
+.step-item.completed .step-circle {
+    background: #28a745;
+    color: white;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e9ecef;
+    margin: 0 10px;
+    align-self: center;
+}
+
+/* Section Animations */
+.form-section {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Styling */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 0.6rem 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.card {
+    transition: box-shadow 0.3s ease;
+}
+</style>
+
+<script>
+// Section Navigation
+function nextSection(sectionNum) {
+    // Hide current section
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show next section
+    document.getElementById('section-' + sectionNum).style.display = 'block';
+    
+    // Update progress
+    updateProgress(sectionNum);
+    
+    // Update review if final section
+    if (sectionNum === 4) {
+        updateReview();
+    }
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevSection(sectionNum) {
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    document.getElementById('section-' + sectionNum).style.display = 'block';
+    updateProgress(sectionNum);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress(activeStep) {
+    document.querySelectorAll('.step-item').forEach((item, index) => {
+        item.classList.remove('active', 'completed');
+        if (index + 1 < activeStep) {
+            item.classList.add('completed');
+        } else if (index + 1 === activeStep) {
+            item.classList.add('active');
+        }
+    });
+}
+
+function updateReview() {
+    const form = document.getElementById('applicationForm');
+    
+    // Get form values
+    const type = form.querySelector('[name="application_type"]').selectedOptions[0]?.text || '-';
+    const name = form.querySelector('[name="full_name"]').value || '-';
+    const dob = form.querySelector('[name="date_of_birth"]').value || '-';
+    const email = form.querySelector('[name="email"]').value || '-';
+    const phone = form.querySelector('[name="phone"]').value || '-';
+    const city = form.querySelector('[name="city"]').value || '-';
+    
+    // Update review section
+    document.getElementById('review-type').textContent = type;
+    document.getElementById('review-name').textContent = name;
+    document.getElementById('review-dob').textContent = dob;
+    document.getElementById('review-email').textContent = email;
+    document.getElementById('review-phone').textContent = phone;
+    document.getElementById('review-city').textContent = city;
+}
+
+// Phone validation
+document.querySelector('[name="phone"]')?.addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+});
+
+// Pincode validation
+document.querySelector('[name="pincode"]')?.addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+});
+</script>
+{% endblock %}
