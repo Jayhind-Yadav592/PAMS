@@ -305,14 +305,6 @@ chmod +x manage.py
 ## 📄 License
 This is an academic project for educational purposes.
 
-## 🤝 Contributing
-This is a college project and not open for external contributions.
-
 ## 📞 Support
 For any queries related to setup or functionality, refer to the inline code comments or contact your project guide.
 
----
-
-**Note**: This project demonstrates full-stack web development with Django, MySQL, and Machine Learning integration. All code is well-commented for easy understanding.
-
-**Happy Coding! 🎓**
