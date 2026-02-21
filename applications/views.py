@@ -4,6 +4,7 @@ from django.contrib import messages
 from .models import Application, ApplicationStage, Document
 from .forms import ApplicationForm, DocumentForm
 from ml_prediction.predictor import predict_for_application
+from notifications.utils import notify_application_submitted
 from datetime import datetime, timedelta
 import random
 
@@ -12,11 +13,13 @@ import random
 def citizen_dashboard(request):
     """Citizen dashboard showing all applications"""
     applications = Application.objects.filter(user=request.user)
+    unread_count = request.user.notifications.filter(is_read=False).count()
     context = {
         'applications': applications,
         'total_apps': applications.count(),
         'pending': applications.filter(current_status='submitted').count(),
         'completed': applications.filter(current_status='delivered').count(),
+        "unread_count": unread_count,
     }
     return render(request, 'applications/citizen_dashboard.html', context)
 
@@ -59,6 +62,9 @@ def submit_application(request):
                     application=application,
                     stage_name=stage
                 )
+            
+            # ⭐ SEND NOTIFICATION (NEW)
+            notify_application_submitted(application)
             
             messages.success(request, f'Application submitted successfully! Number: {application.application_number}')
             return redirect('track_application', app_number=application.application_number)

@@ -3,6 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from applications.models import Application, ApplicationStage
 from django.utils import timezone
+from notifications.utils import (  # ⭐ NEW
+    notify_document_verified,
+    notify_police_verification_started,
+    notify_police_verification_completed,
+    notify_application_approved,
+    notify_application_rejected
+)
 
 
 @login_required
@@ -47,10 +54,16 @@ def verify_application(request, stage_id):
             
             # Update application status
             application = stage.application
+            
             if stage.stage_name == 'Document Verification':
                 application.current_status = 'police_verification'
+                notify_document_verified(application)  # ⭐ NOTIFY
+                
             elif stage.stage_name == 'Police Verification':
                 application.current_status = 'approved'
+                notify_police_verification_completed(application)  # ⭐ NOTIFY
+                notify_application_approved(application)  # ⭐ NOTIFY
+                
             application.save()
             
             messages.success(request, f'Stage "{stage.stage_name}" approved successfully!')
@@ -62,6 +75,8 @@ def verify_application(request, stage_id):
             
             stage.application.current_status = 'rejected'
             stage.application.save()
+            
+            notify_application_rejected(stage.application, remarks)  # ⭐ NOTIFY
             
             messages.warning(request, f'Application rejected.')
         

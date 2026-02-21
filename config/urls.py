@@ -20,6 +20,8 @@ urlpatterns = [
     path('officer/', include('officer.urls')),
     path('admin-panel/', include('admin_panel.urls')),
     path('ml_prediction/', include('ml_prediction.urls')),
+    path('notifications/', include('notifications.urls')),  # ⭐ ADD THIS
+
 ]
 
 # Serve media files in development
